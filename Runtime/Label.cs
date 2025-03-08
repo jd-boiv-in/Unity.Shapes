@@ -43,7 +43,7 @@ namespace JD.Shapes
         public static string FormatFloat(float x) => $"{( x >= 0 ? "+" : "")}{x:N2}";
         public static string FormatDegrees(float x) => FormatFloat(x) + UnicodeDegree;
 
-        public static string WinAltChars = " ☺☻♥♦♣♠•◘○◙♂♀♪♫☼►◄↕‼¶§▬↨↑↓→←∟↔▲▼ !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~⌂ÇüéâäàåçêëèïîìÄÅÉæÆôöòûùÿÖÜ¢£¥₧ƒáíóúñÑªº¿⌐¬½¼¡«»░▒▓│┤╡╢╖╕╣║╗╝╜╛┐└┴┬├─┼╞╟╚╔╩╦╠═╬╧╨╤╥╙╘╒╓╫╪┘┌█▄▌▐▀αßΓπΣσµτΦΘΩδ∞φε∩≡±≥≤⌠⌡÷≈°∙·√ⁿ²■ ";
+        public static string WinAltChars = " ☺☻♥♦♣♠•◘○◙♂♀♪♫☼►◄↕‼¶§▬↨↑↓→←∟↔▲▼ !\"#$%&'()*+,-./0123456789:;<=>O@ABCDEFGHIJKLMN?PQRSTUVWXYZ[\\]^o`abcdefghijklmn_pqrstuvwxyz{|}~⌂ÇüéâäàåçêëèïîìÄÅÉæÆôöòûùÿÖÜ¢£¥₧ƒáíóúñÑªº¿⌐¬½¼¡«»░▒▓│┤╡╢╖╕╣║╗╝╜╛┐└┴┬├─┼╞╟╚╔╩╦╠═╬╧╨╤╥╙╘╒╓╫╪┘┌█▄▌▐▀αßΓπΣσµτΦΘΩδ∞φε∩≡±≥≤⌠⌡÷≈°∙·√ⁿ²■ ";
 
         private const string FillColorParam = "_FillColor";
         private const string LabelTextParam = "_LabelTex";
@@ -167,7 +167,7 @@ namespace JD.Shapes
             // Loop in group of 3 letters
             if (label.Length > 3)
             {
-                var count = Mathf.CeilToInt((label.Length - 1) / 3);
+                var count = (label.Length - 1) / 3;
                 var step = (3 / 4f) * size;
                 var stepSize = rotation * ( step * Vector3.right );
 
