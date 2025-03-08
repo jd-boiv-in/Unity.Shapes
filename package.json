@@ -1,0 +1,17 @@
+{
+  "name": "jd.boiv.in.shapes",
+  "version": "1.0.0",
+  "displayName": "Shapes",
+  "description": "Draw debug shapes for debugging in Unity",
+  "dependencies": {
+    
+ },
+ "keywords": [
+    "debug", "shapes", "circle", "rect"
+  ],
+  "author": {
+    "name": "Jean-Denis Boivin",
+    "email": "jd@boiv.in",
+    "url": "https://jd.boiv.in"
+  }
+}
