@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace Shapes
+namespace JD.Shapes
 {
     [Serializable]
     public struct QuadInfo
@@ -26,8 +26,8 @@ namespace Shapes
         private static void ResetStatic()
         {
             AntiAliasingSmoothing = 1.5f;
-            _quadMesh = null;
-            _hasQuadMesh = false;
+            _mesh = null;
+            _hasMesh = false;
             _materialPropertyBlock = null;
             for (var i = 0; i < _hasMaterials.Length; i++)
             {
@@ -52,8 +52,8 @@ namespace Shapes
         private static readonly int _fillWidth = Shader.PropertyToID(FillWidthParam);
         private static readonly int _fillHeight = Shader.PropertyToID(FillHeightParam);
         
-        private static Mesh _quadMesh;
-        private static bool _hasQuadMesh;
+        private static Mesh _mesh;
+        private static bool _hasMesh;
         private static MaterialPropertyBlock _materialPropertyBlock;
         private static readonly Material[] _materials = new Material[4];
         private static readonly bool[] _hasMaterials = new bool[4];
@@ -64,7 +64,7 @@ namespace Shapes
             new[] { BorderColorKeyword },
         };
 
-        private static Mesh CreateQuadMesh()
+        private static Mesh CreateMesh()
         {
             var quadMesh = new Mesh();
             quadMesh.SetVertices(new List<Vector3>
@@ -142,29 +142,29 @@ namespace Shapes
         private static Mesh GetQuadMesh()
         {
 #if UNITY_EDITOR
-            if (_quadMesh != null)
+            if (_mesh != null)
 #else
-            if (_hasQuadMesh)
+            if (_hasMesh)
 #endif
-                return _quadMesh;
+                return _mesh;
 
-            _quadMesh = CreateQuadMesh();
-            _hasQuadMesh = true;
+            _mesh = CreateMesh();
+            _hasMesh = true;
             
-            return _quadMesh;
+            return _mesh;
         }
 
         public static void Draw(QuadInfo info)
         {
-            var polygonMesh = GetQuadMesh();
+            var mesh = GetQuadMesh();
 
             var rotation = info.Rotation;
-            var polygonMatrix = Matrix4x4.TRS(info.Center, rotation, new Vector3(info.Size.x / 2f, info.Size.y / 2f, 1f));
+            var matrix = Matrix4x4.TRS(info.Center, rotation, new Vector3(info.Size.x / 2f, info.Size.y / 2f, 1f));
 
             var materialPropertyBlock = GetMaterialPropertyBlock(info);
             var material = GetMaterial(info);
 
-            Graphics.DrawMesh(polygonMesh, polygonMatrix, material, 0, null, 0, materialPropertyBlock);
+            Graphics.DrawMesh(mesh, matrix, material, 0, null, 0, materialPropertyBlock);
         }
     }
 }

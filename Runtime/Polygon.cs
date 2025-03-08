@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace Shapes
+namespace JD.Shapes
 {
     [Serializable]
     public struct PolygonInfo
@@ -68,9 +68,9 @@ namespace Shapes
             new[] { BorderColorKeyword },
         };
 
-        private static Mesh GenerateMeshPolygon(PolygonInfo polygonInfo)
+        private static Mesh GenerateMeshPolygon(PolygonInfo info)
         {
-            var id = polygonInfo.Sides - 3;
+            var id = info.Sides - 3;
             if (id < CachedMesh)
             {
 #if UNITY_EDITOR
@@ -84,7 +84,7 @@ namespace Shapes
             var polygonMesh = new Mesh();
             var vertices = new List<Vector3> { Vector3.zero };
 
-            var angleIncrement = (Mathf.PI * 2) / polygonInfo.Sides;
+            var angleIncrement = (Mathf.PI * 2) / info.Sides;
             var offset = Mathf.PI / 4f;
 
             for (var currentAngle = 0f; currentAngle < (Mathf.PI * 2); currentAngle += angleIncrement)
@@ -128,28 +128,28 @@ namespace Shapes
             return polygonMesh;
         }
 
-        private static MaterialPropertyBlock GetMaterialPropertyBlock(PolygonInfo polygonInfo)
+        private static MaterialPropertyBlock GetMaterialPropertyBlock(PolygonInfo info)
         {
             if (_materialPropertyBlock == null)
                 _materialPropertyBlock = new MaterialPropertyBlock();
 
-            _materialPropertyBlock.SetColor(_fillColor, polygonInfo.Color);
+            _materialPropertyBlock.SetColor(_fillColor, info.Color);
             _materialPropertyBlock.SetFloat(_aaSmoothing, AntiAliasingSmoothing);
 
-            if (polygonInfo.Bordered)
+            if (info.Bordered)
             {
-                _materialPropertyBlock.SetColor(_borderColor, polygonInfo.BorderColor);
-                var borderWidthNormalized = polygonInfo.BorderWidth / polygonInfo.Size;
+                _materialPropertyBlock.SetColor(_borderColor, info.BorderColor);
+                var borderWidthNormalized = info.BorderWidth / info.Size;
                 _materialPropertyBlock.SetFloat(_fillWidth, 1.0f - borderWidthNormalized);
             }
 
             return _materialPropertyBlock;
         }
 
-        private static Material GetMaterial(PolygonInfo polygonInfo)
+        private static Material GetMaterial(PolygonInfo info)
         {
             var materialIndex = 0;
-            if (polygonInfo.Bordered)
+            if (info.Bordered)
                 materialIndex = 1;
 
 #if UNITY_EDITOR
@@ -173,20 +173,20 @@ namespace Shapes
             return mat;
         }
 
-        public static void Draw(PolygonInfo polygonInfo)
+        public static void Draw(PolygonInfo info)
         {
-            if (polygonInfo.Sides < 2)
+            if (info.Sides < 2)
                 throw new ArgumentException("Polygon must have at least 3 sides");
 
-            var polygonMesh = GenerateMeshPolygon(polygonInfo);
+            var mesh = GenerateMeshPolygon(info);
 
-            var rotation = polygonInfo.Rotation;
-            var polygonMatrix = Matrix4x4.TRS(polygonInfo.Center, rotation, new Vector3(polygonInfo.Size, polygonInfo.Size, 1f));
+            var rotation = info.Rotation;
+            var matrix = Matrix4x4.TRS(info.Center, rotation, new Vector3(info.Size, info.Size, 1f));
 
-            var materialPropertyBlock = GetMaterialPropertyBlock(polygonInfo);
-            var material = GetMaterial(polygonInfo);
+            var materialPropertyBlock = GetMaterialPropertyBlock(info);
+            var material = GetMaterial(info);
 
-            Graphics.DrawMesh(polygonMesh, polygonMatrix, material, 0, null, 0, materialPropertyBlock);
+            Graphics.DrawMesh(mesh, matrix, material, 0, null, 0, materialPropertyBlock);
         }
     }
 }

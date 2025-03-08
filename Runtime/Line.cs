@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace Shapes
+namespace JD.Shapes
 {
     [Serializable]
     public struct LineInfo
@@ -101,30 +101,30 @@ namespace Shapes
             new[] { BorderColorKeyword, DashedKeyword, VerticalEdgeKeyword },
         };
 
-        private static Material GetLineMaterial(LineInfo lineInfo)
+        private static Material GetLineMaterial(LineInfo info)
         {
             var materialIndex = 0;
-            var hasArrows = lineInfo.StartArrow || lineInfo.EndArrow;
+            var hasArrows = info.StartArrow || info.EndArrow;
 
-            if (lineInfo.Bordered)
+            if (info.Bordered)
                 materialIndex = 1;
 
-            if (lineInfo.Dashed)
+            if (info.Dashed)
                 materialIndex = 2;
 
-            if (lineInfo.Bordered && lineInfo.Dashed)
+            if (info.Bordered && info.Dashed)
                 materialIndex = 3;
 
             if (hasArrows)
                 materialIndex = 4;
 
-            if (hasArrows && lineInfo.Bordered)
+            if (hasArrows && info.Bordered)
                 materialIndex = 5;
 
-            if (hasArrows && lineInfo.Dashed)
+            if (hasArrows && info.Dashed)
                 materialIndex = 6;
 
-            if (hasArrows && lineInfo.Bordered && lineInfo.Dashed)
+            if (hasArrows && info.Bordered && info.Dashed)
                 materialIndex = 7;
 
 #if UNITY_EDITOR
@@ -148,7 +148,7 @@ namespace Shapes
             return _lineMaterials[materialIndex];
         }
 
-        private static Mesh GetLineMesh(LineInfo lineInfo)
+        private static Mesh GetLineMesh(LineInfo info)
         {
 #if UNITY_EDITOR
             if (_lineSegmentMesh == null)
@@ -161,16 +161,6 @@ namespace Shapes
             }
 
             return _lineSegmentMesh;
-        }
-
-        private static MaterialPropertyBlock GetMaterialPropertyBlock(LineInfo lineInfo)
-        {
-            if (_materialPropertyBlock == null)
-                _materialPropertyBlock = new MaterialPropertyBlock();
-            else
-                _materialPropertyBlock.Clear();
-
-            return _materialPropertyBlock;
         }
 
         private static Material GetArrowHeadMaterial()
@@ -201,68 +191,6 @@ namespace Shapes
             }
 
             return _arrowHeadMesh;
-        }
-
-        private static Mesh CreateArrowHeadMesh()
-        {
-            var quadMesh = new Mesh();
-            
-            quadMesh.SetVertices(new List<Vector3>
-            {
-                new Vector3(-0.5f, 0.0f, 0f),
-                new Vector3(0.5f, 0.0f, 0f),
-                new Vector3(0.0f, 1.0f, 0f),
-            });
-
-            quadMesh.triangles = new[]
-            {
-                0, 1, 2,
-            };
-
-            quadMesh.uv = new[]
-            {
-                new Vector2(-0.5f, 0.0f),
-                new Vector2(0.5f, 0.0f),
-                new Vector2(0.0f, 1.0f),
-            };
-
-            quadMesh.colors32 = new[]
-            {
-                new Color32(Byte.MaxValue, 0, 0, 0),
-                new Color32(0, Byte.MaxValue, 0, 0),
-                new Color32(0, 0, Byte.MaxValue, 0),
-            };
-
-            return quadMesh;
-        }
-
-        private static void FillPropertyBlock(MaterialPropertyBlock block, LineInfo lineInfo, float lineSegmentLength)
-        {
-            block.SetColor(_color, lineInfo.FillColor);
-            block.SetFloat(_aaSmoothing, AntiAliasingSmoothing);
-            block.SetFloat(_hard, lineInfo.Hard ? 1 : 0);
-
-            if (lineInfo.Bordered)
-            {
-                block.SetColor(_borderColor, lineInfo.BorderColor);
-                var borderWidthNormalized = lineInfo.BorderWidth / lineInfo.Width;
-                block.SetFloat(_fillWidth, 0.5f - borderWidthNormalized);
-            }
-
-            if (lineInfo.Dashed)
-            {
-                block.SetFloat(_lineLength, lineSegmentLength);
-                block.SetFloat(_distanceBetweenDashes, lineInfo.DistanceBetweenDashes);
-                block.SetFloat(_dashWidth, lineInfo.DashLength);
-            }
-
-            if (lineInfo.StartArrow || lineInfo.EndArrow)
-            {
-                var baseEdgeNoAAMaxX = (lineInfo.Width / lineInfo.ArrowWidth) * 0.5f;
-                var baseEdgeNoAAMinX = -baseEdgeNoAAMaxX;
-                block.SetFloat(_baseEdgeNoAAMinX, baseEdgeNoAAMinX);
-                block.SetFloat(_baseEdgeNoAAMaxX, baseEdgeNoAAMaxX);
-            }
         }
 
         private static Mesh CreateLineSegmentMesh()
@@ -315,6 +243,78 @@ namespace Shapes
 
             return quadMesh;
         }
+        
+        private static Mesh CreateArrowHeadMesh()
+        {
+            var quadMesh = new Mesh();
+            
+            quadMesh.SetVertices(new List<Vector3>
+            {
+                new Vector3(-0.5f, 0.0f, 0f),
+                new Vector3(0.5f, 0.0f, 0f),
+                new Vector3(0.0f, 1.0f, 0f),
+            });
+
+            quadMesh.triangles = new[]
+            {
+                0, 1, 2,
+            };
+
+            quadMesh.uv = new[]
+            {
+                new Vector2(-0.5f, 0.0f),
+                new Vector2(0.5f, 0.0f),
+                new Vector2(0.0f, 1.0f),
+            };
+
+            quadMesh.colors32 = new[]
+            {
+                new Color32(Byte.MaxValue, 0, 0, 0),
+                new Color32(0, Byte.MaxValue, 0, 0),
+                new Color32(0, 0, Byte.MaxValue, 0),
+            };
+
+            return quadMesh;
+        }
+        
+        private static MaterialPropertyBlock GetMaterialPropertyBlock(LineInfo info)
+        {
+            if (_materialPropertyBlock == null)
+                _materialPropertyBlock = new MaterialPropertyBlock();
+            else
+                _materialPropertyBlock.Clear();
+
+            return _materialPropertyBlock;
+        }
+
+        private static void FillPropertyBlock(MaterialPropertyBlock block, LineInfo info, float length)
+        {
+            block.SetColor(_color, info.FillColor);
+            block.SetFloat(_aaSmoothing, AntiAliasingSmoothing);
+            block.SetFloat(_hard, info.Hard ? 1 : 0);
+
+            if (info.Bordered)
+            {
+                block.SetColor(_borderColor, info.BorderColor);
+                var borderWidthNormalized = info.BorderWidth / info.Width;
+                block.SetFloat(_fillWidth, 0.5f - borderWidthNormalized);
+            }
+
+            if (info.Dashed)
+            {
+                block.SetFloat(_lineLength, length);
+                block.SetFloat(_distanceBetweenDashes, info.DistanceBetweenDashes);
+                block.SetFloat(_dashWidth, info.DashLength);
+            }
+
+            if (info.StartArrow || info.EndArrow)
+            {
+                var baseEdgeNoAAMaxX = (info.Width / info.ArrowWidth) * 0.5f;
+                var baseEdgeNoAAMinX = -baseEdgeNoAAMaxX;
+                block.SetFloat(_baseEdgeNoAAMinX, baseEdgeNoAAMinX);
+                block.SetFloat(_baseEdgeNoAAMaxX, baseEdgeNoAAMaxX);
+            }
+        }
 
         private static Matrix4x4 GetLineTRSMatrix(Vector3 startPos, Vector3 endPos, Vector3 forward, float width, out float lineLength)
         {
@@ -353,36 +353,36 @@ namespace Shapes
             Graphics.DrawMesh(arrowHeadMesh, matrix, arrowHeadMaterial, 0, null, 0, materialPropertyBlock);
         }
 
-        public static void Draw(LineInfo lineInfo)
+        public static void Draw(LineInfo info)
         {
-            var lineMaterial = GetLineMaterial(lineInfo);
-            var lineSegmentMesh = GetLineMesh(lineInfo);
-            var materialPropertyBlock = GetMaterialPropertyBlock(lineInfo);
+            var lineMaterial = GetLineMaterial(info);
+            var lineSegmentMesh = GetLineMesh(info);
+            var materialPropertyBlock = GetMaterialPropertyBlock(info);
 
-            var lineSegmentStartPos = lineInfo.StartPos;
-            var lineSegmentEndPos = lineInfo.EndPos;
+            var lineSegmentStartPos = info.StartPos;
+            var lineSegmentEndPos = info.EndPos;
 
             var lineDirection = (lineSegmentEndPos - lineSegmentStartPos).normalized;
 
-            if (lineInfo.StartArrow)
-                lineSegmentStartPos = lineSegmentStartPos + lineDirection * lineInfo.ArrowLength;
+            if (info.StartArrow)
+                lineSegmentStartPos = lineSegmentStartPos + lineDirection * info.ArrowLength;
 
-            if (lineInfo.EndArrow)
-                lineSegmentEndPos = lineSegmentEndPos - lineDirection * lineInfo.ArrowLength;
+            if (info.EndArrow)
+                lineSegmentEndPos = lineSegmentEndPos - lineDirection * info.ArrowLength;
 
-            var forward = lineInfo.Forward;
-            var width = lineInfo.Width;
+            var forward = info.Forward;
+            var width = info.Width;
             var matrix = GetLineTRSMatrix(lineSegmentStartPos, lineSegmentEndPos, forward, width, out var lineLength);
 
-            FillPropertyBlock(materialPropertyBlock, lineInfo, lineLength);
+            FillPropertyBlock(materialPropertyBlock, info, lineLength);
 
             Graphics.DrawMesh(lineSegmentMesh, matrix, lineMaterial, 0, null, 0, materialPropertyBlock);
 
-            if (lineInfo.EndArrow)
-                DrawArrowHead(lineSegmentEndPos, lineInfo.EndPos, forward, lineInfo.ArrowWidth, materialPropertyBlock);
+            if (info.EndArrow)
+                DrawArrowHead(lineSegmentEndPos, info.EndPos, forward, info.ArrowWidth, materialPropertyBlock);
 
-            if (lineInfo.StartArrow)
-                DrawArrowHead(lineSegmentStartPos, lineInfo.StartPos, forward, lineInfo.ArrowWidth, materialPropertyBlock);
+            if (info.StartArrow)
+                DrawArrowHead(lineSegmentStartPos, info.StartPos, forward, info.ArrowWidth, materialPropertyBlock);
         }
     }
 }

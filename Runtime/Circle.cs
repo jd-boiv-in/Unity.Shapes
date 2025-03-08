@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace Shapes
+namespace JD.Shapes
 {
     [Serializable]
     public struct CircleInfo
@@ -28,8 +28,8 @@ namespace Shapes
         private static void ResetStatic()
         {
             AntiAliasingSmoothing = 1.5f;
-            _quadMesh = null;
-            _hasQuadMesh = false;
+            _mesh = null;
+            _hasMesh = false;
             _materialPropertyBlock = null;
             for (var i = 0; i < _hasMaterials.Length; i++)
             {
@@ -59,8 +59,8 @@ namespace Shapes
         private static readonly int _cutPlaneNormal2 = Shader.PropertyToID(SectorPlaneNormal2);
         private static readonly int _angleBlend = Shader.PropertyToID(SectorAngleBlendMode);
         
-        private static Mesh _quadMesh;
-        private static bool _hasQuadMesh;
+        private static Mesh _mesh;
+        private static bool _hasMesh;
         private static MaterialPropertyBlock _materialPropertyBlock;
         private static readonly Material[] _materials = new Material[4];
         private static readonly bool[] _hasMaterials = new bool[4];
@@ -73,17 +73,17 @@ namespace Shapes
             new[] { BorderColorKeyword, SectorKeyword },
         };
 
-        private static Material GetMaterial(CircleInfo circleInfo)
+        private static Material GetMaterial(CircleInfo info)
         {
             var materialIndex = 0;
 
-            if (circleInfo.Bordered)
+            if (info.Bordered)
                 materialIndex = 1;
 
-            if (circleInfo.IsSector)
+            if (info.IsSector)
                 materialIndex = 2;
 
-            if (circleInfo.Bordered && circleInfo.IsSector)
+            if (info.Bordered && info.IsSector)
                 materialIndex = 3;
 
 #if UNITY_EDITOR
@@ -109,25 +109,25 @@ namespace Shapes
             return mat;
         }
 
-        private static MaterialPropertyBlock GetMaterialPropertyBlock(CircleInfo circleInfo)
+        private static MaterialPropertyBlock GetMaterialPropertyBlock(CircleInfo info)
         {
             if (_materialPropertyBlock == null)
                 _materialPropertyBlock = new MaterialPropertyBlock();
 
-            _materialPropertyBlock.SetColor(_fillColor, circleInfo.FillColor);
+            _materialPropertyBlock.SetColor(_fillColor, info.FillColor);
             _materialPropertyBlock.SetFloat(_aaSmoothing, AntiAliasingSmoothing);
 
-            if (circleInfo.Bordered)
+            if (info.Bordered)
             {
-                _materialPropertyBlock.SetColor(_borderColor, circleInfo.BorderColor);
-                var borderWidthNormalized = circleInfo.BorderWidth / circleInfo.Radius;
+                _materialPropertyBlock.SetColor(_borderColor, info.BorderColor);
+                var borderWidthNormalized = info.BorderWidth / info.Radius;
                 _materialPropertyBlock.SetFloat(_fillWidth, 1.0f - borderWidthNormalized);
             }
 
-            if (circleInfo.IsSector)
+            if (info.IsSector)
             {
-                SetSectorAngles(_materialPropertyBlock, circleInfo.SectorInitialAngleInDegrees,
-                    circleInfo.SectorArcLengthInDegrees);
+                SetSectorAngles(_materialPropertyBlock, info.SectorInitialAngleInDegrees,
+                    info.SectorArcLengthInDegrees);
             }
 
             return _materialPropertyBlock;
@@ -136,22 +136,22 @@ namespace Shapes
         private static Mesh GetCircleMesh()
         {
 #if UNITY_EDITOR
-            if (_quadMesh != null)
+            if (_mesh != null)
 #else
             if (_hasQuadMesh)
 #endif
-                return _quadMesh;
+                return _mesh;
 
-            _quadMesh = CreateQuadMesh();
-            _hasQuadMesh = true;
+            _mesh = CreateMesh();
+            _hasMesh = true;
             
-            return _quadMesh;
+            return _mesh;
         }
 
-        private static Matrix4x4 GetTRSMatrix(CircleInfo circleInfo)
+        private static Matrix4x4 GetTRSMatrix(CircleInfo info)
         {
-            var rotation = Quaternion.LookRotation(circleInfo.Forward);
-            return Matrix4x4.TRS(circleInfo.Center, rotation, new Vector3(circleInfo.Radius, circleInfo.Radius, 1f));
+            var rotation = Quaternion.LookRotation(info.Forward);
+            return Matrix4x4.TRS(info.Center, rotation, new Vector3(info.Radius, info.Radius, 1f));
         }
 
         private static void SetSectorAngles(MaterialPropertyBlock block, float initialAngleDegrees, float sectorArcLengthDegrees)
@@ -167,7 +167,7 @@ namespace Shapes
             block.SetFloat(_angleBlend, sectorArcLengthDegrees < 180f ? 0f : 1f);
         }
 
-        private static Mesh CreateQuadMesh()
+        private static Mesh CreateMesh()
         {
             var quadMesh = new Mesh();
             quadMesh.SetVertices(new List<Vector3>
@@ -198,12 +198,12 @@ namespace Shapes
             return quadMesh;
         }
         
-        public static void Draw(CircleInfo circleInfo)
+        public static void Draw(CircleInfo info)
         {
             var mesh = GetCircleMesh();
-            var materialPropertyBlock = GetMaterialPropertyBlock(circleInfo);
-            var matrix = GetTRSMatrix(circleInfo);
-            var material = GetMaterial(circleInfo);
+            var materialPropertyBlock = GetMaterialPropertyBlock(info);
+            var matrix = GetTRSMatrix(info);
+            var material = GetMaterial(info);
 
             Graphics.DrawMesh(mesh, matrix, material, 0, null, 0, materialPropertyBlock);
         }

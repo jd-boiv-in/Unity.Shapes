@@ -14,9 +14,17 @@ Add the dependency to your `manifest.json`
 }
 ```
 
+## Shapes
+
+- Circle
+- Quad
+- Polygons
+- Line
+- Label
+
 ## Usage
 
-Call your code from anywhere
+Call your code from anywhere (every frame).
 
 ```csharp
 Circle.Draw(new CircleInfo{
