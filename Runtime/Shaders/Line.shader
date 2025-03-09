@@ -1,4 +1,4 @@
-﻿Shader "Shapes/Line"
+﻿Shader "Hidden/Shapes/Line"
 {
 	Properties
 	{

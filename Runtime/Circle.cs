@@ -95,7 +95,7 @@ namespace JD.Shapes
                 return _materials[materialIndex];
             }
 
-            var mat = new Material(Shader.Find("Shapes/Circle"));
+            var mat = new Material(Shader.Find("Hidden/Shapes/Circle"));
             if (SystemInfo.supportsInstancing)
                 mat.enableInstancing = true;
 

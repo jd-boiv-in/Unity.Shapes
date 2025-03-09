@@ -1,4 +1,4 @@
-﻿Shader "Shapes/Polygon"
+﻿Shader "Hidden/Shapes/Polygon"
 {
 	Properties
 	{

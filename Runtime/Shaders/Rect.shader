@@ -1,4 +1,4 @@
-﻿Shader "Shapes/Rect"
+﻿Shader "Hidden/Shapes/Rect"
 {
 	Properties
 	{

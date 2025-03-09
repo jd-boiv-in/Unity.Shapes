@@ -129,7 +129,7 @@ namespace JD.Shapes
 #endif
                 return _material;
 
-            var mat = new Material(Shader.Find("Shapes/Label"));
+            var mat = new Material(Shader.Find("Hidden/Shapes/Label"));
             if (SystemInfo.supportsInstancing)
                 mat.enableInstancing = true;
 

@@ -1,4 +1,4 @@
-Shader "Shapes/Label"
+Shader "Hidden/Shapes/Label"
 {
 	Properties {}
 	SubShader

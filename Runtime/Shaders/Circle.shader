@@ -1,4 +1,4 @@
-﻿Shader "Shapes/Circle"
+﻿Shader "Hidden/Shapes/Circle"
 {
 	Properties
 	{
