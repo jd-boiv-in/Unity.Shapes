@@ -133,7 +133,7 @@ namespace JD.Shapes
             if (!_hasLineMaterials[materialIndex])
 #endif
             {
-                var material = new Material(Shader.Find("Hidden/Shapes/Line"));
+                var material = new Material(Shader.Find("Shapes/Line"));
                 if (SystemInfo.supportsInstancing)
                     material.enableInstancing = true;
 
@@ -171,7 +171,7 @@ namespace JD.Shapes
             if (!_hasArrowHeadMaterial)
 #endif
             {
-                _arrowHeadMaterial = new Material(Shader.Find("Hidden/Shapes/ArrowHead"));
+                _arrowHeadMaterial = new Material(Shader.Find("Shapes/ArrowHead"));
                 _hasArrowHeadMaterial = true;
             }
 

@@ -125,7 +125,7 @@ namespace JD.Shapes
 #endif
                 return _materials[materialIndex];
 
-            var mat = new Material(Shader.Find("Hidden/Shapes/Rect"));
+            var mat = new Material(Shader.Find("Shapes/Rect"));
             if (SystemInfo.supportsInstancing)
                 mat.enableInstancing = true;
 

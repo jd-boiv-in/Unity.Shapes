@@ -31,6 +31,7 @@ namespace JD.Shapes
             _texture = null;
             _hasTexture = false;
             _materialPropertyBlock = null;
+            _charsIndex = null;
         }
         
         public static float AntiAliasingSmoothing = 1.5f;
@@ -43,8 +44,11 @@ namespace JD.Shapes
         public static string FormatFloat(float x) => $"{( x >= 0 ? "+" : "")}{x:N2}";
         public static string FormatDegrees(float x) => FormatFloat(x) + UnicodeDegree;
 
-        public static string WinAltChars = " ☺☻♥♦♣♠•◘○◙♂♀♪♫☼►◄↕‼¶§▬↨↑↓→←∟↔▲▼ !\"#$%&'()*+,-./0123456789:;<=>O@ABCDEFGHIJKLMN?PQRSTUVWXYZ[\\]^o`abcdefghijklmn_pqrstuvwxyz{|}~⌂ÇüéâäàåçêëèïîìÄÅÉæÆôöòûùÿÖÜ¢£¥₧ƒáíóúñÑªº¿⌐¬½¼¡«»░▒▓│┤╡╢╖╕╣║╗╝╜╛┐└┴┬├─┼╞╟╚╔╩╦╠═╬╧╨╤╥╙╘╒╓╫╪┘┌█▄▌▐▀αßΓπΣσµτΦΘΩδ∞φε∩≡±≥≤⌠⌡÷≈°∙·√ⁿ²■ ";
-
+        // TODO: Bug with some chars at the very edge of the atlas, but we can simply swap them, so...
+        private static readonly string _charsStr = " ☺☻♥♦♣♠•◘○◙♂♀♪♫☼►◄↕‼¶§▬↨↑↓→←∟↔▲▼ !\"#$%&'()*+,-./0123456789:;<=>O@ABCDEFGHIJKLMN?PQRSTUVWXYZ[\\]^o`abcdefghijklmn_pqrstuvwxyz{|}~⌂ÇüéâäàåçêëèïîìÄÅÉæÆôöòûùÿÖÜ¢£¥₧ƒáíóúñÑªº¿⌐¬½¼¡«»░▒▓│┤╡╢╖╕╣║╗╝╜╛┐└┴┬├─┼╞╟╚╔╩╦╠═╬╧╨╤╥╙╘╒╓╫╪┘┌█▄▌▐▀αßΓπΣσµτΦΘΩδ∞φε∩≡±≥≤⌠⌡÷≈°∙·√ⁿ²■ ";
+        //private static readonly string _charsStr = " ☺☻♥♦♣♠•◘○◙♂♀♪♫☼►◄↕‼¶§▬↨↑↓→←∟↔▲▼ !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~⌂ÇüéâäàåçêëèïîìÄÅÉæÆôöòûùÿÖÜ¢£¥₧ƒáíóúñÑªº¿⌐¬½¼¡«»░▒▓│┤╡╢╖╕╣║╗╝╜╛┐└┴┬├─┼╞╟╚╔╩╦╠═╬╧╨╤╥╙╘╒╓╫╪┘┌█▄▌▐▀αßΓπΣσµτΦΘΩδ∞φε∩≡±≥≤⌠⌡÷≈°∙·√ⁿ²■ ";
+        private static Dictionary<int, int> _charsIndex;
+        
         private const string FillColorParam = "_FillColor";
         private const string LabelTextParam = "_LabelTex";
         private const string IndexParam = "_index";
@@ -108,8 +112,6 @@ namespace JD.Shapes
             _texture = Resources.Load<Texture2D>("Shapes/unifont_8x16");
             _hasTexture = true;
             
-            Debug.Log($"Text: {_texture == null}");
-            
             return _texture;
         }
 
@@ -122,7 +124,7 @@ namespace JD.Shapes
 #endif
                 return _material;
 
-            var mat = new Material(Shader.Find("Hidden/Shapes/Label"));
+            var mat = new Material(Shader.Find("Shapes/Label"));
             if (SystemInfo.supportsInstancing)
                 mat.enableInstancing = true;
 
@@ -149,52 +151,49 @@ namespace JD.Shapes
             return _mesh;
         }
 
+        private static int GetIndex(string str, int i)
+        {
+            var c = i >= str.Length ? ' ' : str[i];
+            if (_charsIndex == null) _charsIndex = new Dictionary<int, int>();
+            if (_charsIndex.TryGetValue(c, out var index)) return index;
+
+            index = _charsStr.IndexOf(c) + 1;
+            _charsIndex[c] = index;
+            return index;
+        }
+        
+        // TODO: Allow something like `SetText("Hey: {0}", 12)` to prevent alloc furthermore, altho this is debug stuff so not worth the time currently
         public static void Draw(LabelInfo info)
         {
-            DrawPart(info.Position, info.Text, info.Color, info.Size, info.Center, info.Rotation);
-        }
+            if (info.Text == null || string.IsNullOrEmpty(info.Text)) return;
 
-        private static void DrawPart(Vector3 position, string label, Color color, float size = 0.1f, bool center = true)
-        {
-            DrawPart(position, label, color, size, center, Quaternion.identity);
-        }
-
-        private static void DrawPart(Vector3 position, string label, Color color, float size, bool center, Quaternion rotation)
-        {
-            if (label == null || string.IsNullOrEmpty(label.Trim())) return;
-            while (label.Length < 3) label += ' ';
+            var countf = info.Text.Length / 3f;
+            var count = Mathf.CeilToInt(countf);
+            var step = (3 / 4f) * info.Size;
+            var stepSize = info.Rotation * (step * 2 * Vector3.right);
+            var pos = info.Position - stepSize * (count - 1) / 2f;
+            if (!info.Center) pos = info.Position + stepSize / 2f;
+            if (info.Center) pos += (count - countf) * stepSize / 2f;
             
-            // Loop in group of 3 letters
-            if (label.Length > 3)
+            for (var i = 0; i < count; i++)
             {
-                var count = (label.Length - 1) / 3;
-                var step = (3 / 4f) * size;
-                var stepSize = rotation * ( step * Vector3.right );
-
-                if (center)
-                {
-                    DrawPart(position + stepSize * ( count * ( 1 ) ), label.Substring(0, 3) , color, size, true, rotation);
-                    DrawPart(position - stepSize * ( 1 ), label.Substring( 3 ), color , size, true, rotation);
-                }
-                else
-                {
-                    DrawPart(position , label.Substring(0, 3), color, size, false, rotation);
-                    DrawPart(position - stepSize * 2f , label.Substring(3), color, size, false, rotation);
-                }
-                return;
+                var data = 0;
+                for (var j = 0; j < 3; j++) data |= (GetIndex(info.Text, i * 3 + j) << (8 * j));
+                
+                DrawPart(pos + stepSize * (i * 1), data, info.Color, info.Size, info.Rotation);
             }
-            
+        }
+
+        private static void DrawPart(Vector3 position, int data, Color color, float size, Quaternion rotation)
+        {
             var mesh = GetMesh();
             var material = GetMaterial();
             var materialPropertyBlock = GetMaterialPropertyBlock(color);
             
-            var data = 0;
-            for (var i = 0; i < 3; ++i) data |= ((WinAltChars.IndexOf(label[i]) + 1) << (8 * i));
-
             materialPropertyBlock.SetColor(_fillColor, color);
-            materialPropertyBlock.SetInt(_index, data );
+            materialPropertyBlock.SetInt(_index, data);
 
-            var scale = new Vector3( 3f/4f, 0.5f, 0 ) * size;
+            var scale = new Vector3( -3f/4f, 0.5f, 0 ) * size;
             var matrix = Matrix4x4.TRS(position, rotation, scale); // Quaternion.LookRotation(Common.normal)
 
             Graphics.DrawMesh(mesh, matrix, material, 0, null, 0, materialPropertyBlock);

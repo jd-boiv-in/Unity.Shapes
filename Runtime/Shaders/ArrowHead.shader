@@ -1,4 +1,4 @@
-﻿Shader "Hidden/Shapes/ArrowHead"
+﻿Shader "Shapes/ArrowHead"
 {
 	Properties
 	{

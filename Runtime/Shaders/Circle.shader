@@ -1,11 +1,15 @@
-﻿Shader "Hidden/Shapes/Circle"
+﻿Shader "Shapes/Circle"
 {
 	Properties
 	{
 	}
 	SubShader
 	{
-		Tags { "RenderType"="Transparent" "Queue" = "Transparent+173" "DisableBatching" ="true" }
+		Tags {
+			"RenderType" = "Transparent"
+			"Queue" = "Transparent+173"
+			"DisableBatching" ="true"
+		}
 		LOD 100
 
 		Pass

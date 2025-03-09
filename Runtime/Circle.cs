@@ -95,7 +95,7 @@ namespace JD.Shapes
                 return _materials[materialIndex];
             }
 
-            var mat = new Material(Shader.Find("Hidden/Shapes/Circle"));
+            var mat = new Material(Shader.Find("Shapes/Circle"));
             if (SystemInfo.supportsInstancing)
                 mat.enableInstancing = true;
 
@@ -125,10 +125,7 @@ namespace JD.Shapes
             }
 
             if (info.IsSector)
-            {
-                SetSectorAngles(_materialPropertyBlock, info.SectorInitialAngleInDegrees,
-                    info.SectorArcLengthInDegrees);
-            }
+                SetSectorAngles(_materialPropertyBlock, info.SectorInitialAngleInDegrees, info.SectorArcLengthInDegrees);
 
             return _materialPropertyBlock;
         }
@@ -138,7 +135,7 @@ namespace JD.Shapes
 #if UNITY_EDITOR
             if (_mesh != null)
 #else
-            if (_hasQuadMesh)
+            if (_hasMesh)
 #endif
                 return _mesh;
 

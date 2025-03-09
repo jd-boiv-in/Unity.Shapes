@@ -1,11 +1,15 @@
-﻿Shader "Hidden/Shapes/Rect"
+﻿Shader "Shapes/Rect"
 {
 	Properties
 	{
 	}
 	SubShader
 	{
-		Tags { "RenderType"="Transparent" "Queue" = "Transparent+175" "DisableBatching" ="true"}
+		Tags {
+			"RenderType" = "Transparent"
+			"Queue" = "Transparent+175"
+			"DisableBatching" = "true"
+		}
 		LOD 100
 
 		Pass

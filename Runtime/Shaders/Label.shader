@@ -1,9 +1,13 @@
-Shader "Hidden/Shapes/Label"
+Shader "Shapes/Label"
 {
 	Properties {}
 	SubShader
 	{
-		Tags { "RenderType" = "Transparent" "Queue" = "Transparent+199" "DisableBatching" = "true" }
+		Tags {
+			"RenderType" = "Transparent"
+			"Queue" = "Transparent+199"
+			"DisableBatching" = "true"
+		}
 		LOD 100
 
 		Pass
@@ -51,7 +55,6 @@ Shader "Hidden/Shapes/Label"
 				UNITY_TRANSFER_INSTANCE_ID(v, o);
 				UNITY_INITIALIZE_VERTEX_OUTPUT_STEREO(o);
 
-				//o.vertex = UnityWorldToClipPos(v.vertex);
 				o.vertex = UnityObjectToClipPos(v.vertex);
 				o.uv = v.vertex.xy;
 				return o;
@@ -88,7 +91,7 @@ Shader "Hidden/Shapes/Label"
 				UNITY_SETUP_INSTANCE_ID(i);
 
 				fixed4 fillColor = UNITY_ACCESS_INSTANCED_PROP(CommonProps, _FillColor);
-				int index = UNITY_ACCESS_INSTANCED_PROP( CommonProps, _index );
+				int index = UNITY_ACCESS_INSTANCED_PROP(CommonProps, _index);
 
 				int3x2 ii = int3x2
 				(
@@ -102,7 +105,7 @@ Shader "Hidden/Shapes/Label"
 					//index >> 28	& 0xF 
 				);
 				
-				float2 UV = float2( 1 - (i.uv.x + 1) / 2, (i.uv.y + 1) / 2 );
+				float2 UV = float2(1 - (i.uv.x + 1) / 2, (i.uv.y + 1) / 2);
 				float2 uvs = float2(remap(-1, 1, -3, 3, i.uv.x), i.uv.y); // in Label.cs IndexOf() + 1
 
 				float2 uvs0 = IndexToUV(ii[0][0], ii[0][1], uvs);

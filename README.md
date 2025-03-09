@@ -1,6 +1,6 @@
 # Unity.Shapes
 
-Draw debug shapes for debugging in Unity. Not meant for non-debugging purpose, altho it should be pretty fast and looks pretty smooth. It can be included in build unlike gizmos.
+Draw debug shapes for debugging in Unity. Not meant for non-debugging purpose, altho it should be pretty fast and looks pretty smooth. It can be included in build unlike gizmos. Will be drawn over the background queue but before any transparent sprites, also non-alloc.
 
 ## Installation
 
@@ -67,3 +67,7 @@ A [sample project](https://github.com/starburst997/Unity.Shapes/tree/main/Sample
 
 - Add more examples
 - Better readme
+
+## Credits
+
+Forked from [miguel12345/UnityShapes](https://github.com/miguel12345/UnityShapes) && [nukadelic/UnityQuickDraw](https://github.com/nukadelic/UnityQuickDraw)
