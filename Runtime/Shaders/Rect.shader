@@ -71,40 +71,32 @@
 			fixed4 frag (v2f i) : SV_Target
 			{
                 UNITY_SETUP_INSTANCE_ID(i);
-                
-                float aaSmoothing = UNITY_ACCESS_INSTANCED_PROP(CommonProps, _AASmoothing);
+			    
+			    float aaSmoothing = UNITY_ACCESS_INSTANCED_PROP(CommonProps, _AASmoothing);
 			    fixed4 fillColor = UNITY_ACCESS_INSTANCED_PROP(CommonProps, _FillColor);
-
-				float distanceToCenter = i.uv.x;
+			    
+			    float2 absUV = abs(i.uv);
+			    float distanceToCenter = max(absUV.x, absUV.y);
 			    
 			    float distancePerPixel = fwidth(distanceToCenter);
 			    float distanceAlphaFactor = 1.0 - smoothstep(1.0-distancePerPixel*aaSmoothing,1.0,distanceToCenter);
-				
-				#if BORDER
-				float fillWidth = UNITY_ACCESS_INSTANCED_PROP(BorderProps, _FillWidth);
-				float fillHeight = UNITY_ACCESS_INSTANCED_PROP(BorderProps, _FillHeight);
-				float4 borderColor = UNITY_ACCESS_INSTANCED_PROP(BorderProps, _BorderColor);
-				float _HorizontalBorderThickness = fillWidth;
-				float _VerticalBorderThickness = fillHeight;
-				float4 _Color = fillColor;
-				
-				// Determine if the pixel is within the border area
-                bool isHorizontalBorder = i.uv.y < -1 + _HorizontalBorderThickness || i.uv.y > (1.0 - _HorizontalBorderThickness);
-                bool isVerticalBorder = i.uv.x < -1 + _VerticalBorderThickness || i.uv.x > (1.0 - _VerticalBorderThickness);
-
-				// TODO: Too naive? Use step?
-                if (isHorizontalBorder || isVerticalBorder)
-                {
-                    fillColor = borderColor;
-                }
-                else
-                {
-                    fillColor = _Color;
-                }
-				#endif
-
-				fillColor.a *= distanceAlphaFactor;
-			    return fillColor;
+			    float halfSmoothFactor = 0.5f * distancePerPixel * aaSmoothing;
+			    
+			    #if BORDER
+			    float fillWidth = UNITY_ACCESS_INSTANCED_PROP(BorderProps, _FillWidth);
+			    float fillHeight = UNITY_ACCESS_INSTANCED_PROP(BorderProps, _FillHeight);
+			    fixed4 borderColor = UNITY_ACCESS_INSTANCED_PROP(BorderProps, _BorderColor);
+			    
+			    float fillToBorderX = smoothstep(fillWidth-halfSmoothFactor,fillWidth+halfSmoothFactor,absUV.x);
+			    float fillToBorderY = smoothstep(fillHeight-halfSmoothFactor,fillHeight+halfSmoothFactor,absUV.y);
+			    fixed4 squareColor = lerp(fillColor, borderColor, max(fillToBorderX, fillToBorderY));
+			    #else
+			    fixed4 squareColor = fillColor;
+			    #endif
+			    
+			    squareColor.a *= distanceAlphaFactor;
+                
+                return squareColor;
 			}
 			ENDCG
 		}

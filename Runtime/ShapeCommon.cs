@@ -17,6 +17,6 @@ namespace JD.Shapes
         public static float CircleBorderWidth = 0.025f;
         
         public static Quaternion RectRotation = Quaternion.Euler(new Vector3(0, 0, 0));
-        public static float RectBorderWidth = 0.0333333333333333f;
+        public static float RectBorderWidth = 0.075f;
     }
 }

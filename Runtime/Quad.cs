@@ -106,8 +106,8 @@ namespace JD.Shapes
             if (info.Bordered)
             {
                 _materialPropertyBlock.SetColor(_borderColor, info.BorderColor);
-                _materialPropertyBlock.SetFloat(_fillWidth, 2 * info.BorderWidth / info.Size.x);
-                _materialPropertyBlock.SetFloat(_fillHeight, 2 * info.BorderWidth / info.Size.x * (info.Size.y / info.Size.x));
+                _materialPropertyBlock.SetFloat(_fillWidth, 1 - info.BorderWidth * (1f / info.Size.x));
+                _materialPropertyBlock.SetFloat(_fillHeight, 1 - info.BorderWidth * (1f / info.Size.y));
             }
 
             return _materialPropertyBlock;
