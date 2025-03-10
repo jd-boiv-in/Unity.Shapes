@@ -68,6 +68,7 @@ namespace JD.Shapes
         private static int _charsLength = 0;
         private static int _charsMax = 0;
         private static readonly int[] _chars = new int[1024];
+        private static readonly int[] _lines = new int[1024];
         private static readonly decimal[] _power = { 5e-1m, 5e-2m, 5e-3m, 5e-4m, 5e-5m, 5e-6m, 5e-7m, 5e-8m, 5e-9m, 5e-10m }; // Used by FormatText to enable rounding and avoid using Mathf.Pow.
         
         private static Mesh CreateMesh()
@@ -196,18 +197,25 @@ namespace JD.Shapes
             var indexStart = 0;
             var indexEnd = 0;
             var indexMax = 0;
+            var length = 0;
+            var lines = 0;
             for (var i = 0; i < info.Text.Length; i++)
             {
                 var c = GetChar(info.Text, i);
                 if (c == '\n')
                 {
                     indexEnd = i;
-                    var length = indexEnd - indexStart;
+                    length = indexEnd - indexStart;
                     if (length > indexMax) indexMax = length;
+                    _lines[lines++] = length;
                     
                     indexStart = i + 1;
                 }
             }
+            length = info.Text.Length - indexStart;
+            if (length > indexMax) indexMax = length;
+            _lines[lines] = length;
+            
             indexMax = indexMax == 0 ? info.Text.Length : indexMax;
             
             var count = Mathf.CeilToInt(info.Text.Length);
@@ -367,6 +375,8 @@ namespace JD.Shapes
             var indexStart = 0;
             var indexEnd = 0;
             var indexMax = 0;
+            var length = 0;
+            var lines = 0;
 
             for (; readIndex < sourceText.Length; readIndex++)
             {
@@ -481,8 +491,9 @@ namespace JD.Shapes
                 if (c == '\n')
                 {
                     indexEnd = writeIndex;
-                    var length = indexEnd - indexStart;
+                    length = indexEnd - indexStart;
                     if (length > indexMax) indexMax = length;
+                    _lines[lines++] = length;
                     
                     indexStart = writeIndex + 1;
                 }
@@ -494,6 +505,11 @@ namespace JD.Shapes
 
             _chars[writeIndex] = 0;
             _charsLength = writeIndex;
+            
+            length = _charsLength - indexStart;
+            if (length > indexMax) indexMax = length;
+            _lines[lines] = length;
+            
             _charsMax = indexMax == 0 ? writeIndex : indexMax;
         }
         
