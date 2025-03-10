@@ -4,9 +4,9 @@
   "displayName": "Shapes",
   "description": "Draw debug shapes for debugging in Unity",
   "dependencies": {
-    
- },
- "keywords": [
+  
+  },
+  "keywords": [
     "debug", "shapes", "circle", "rect"
   ],
   "author": {
