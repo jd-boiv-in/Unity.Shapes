@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "displayName": "Shapes",
   "description": "Draw debug shapes for debugging in Unity",
+  "license": "MIT",
   "dependencies": {
   
   },
