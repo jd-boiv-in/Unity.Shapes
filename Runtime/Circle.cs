@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+#pragma warning disable CS0414 // Field is assigned but its value is never used
 namespace JD.Shapes
 {
     [Serializable]

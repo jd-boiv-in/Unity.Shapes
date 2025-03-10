@@ -4,12 +4,14 @@ Draw debug shapes for debugging in Unity. Not meant for non-debugging purpose, a
 
 ## Installation
 
-Add the dependency to your `manifest.json`
+Add these dependencies to your `manifest.json`
 
 ```json
 {
   "dependencies": {
-    "jd.boiv.in.shapes": "https://github.com/starburst997/Unity.Shapes.git"
+    "jd.boiv.in.shapes": "https://github.com/starburst997/Unity.Shapes.git",
+    "jd.boiv.in.extensions": "https://github.com/starburst997/Unity.Extensions.git",
+    "jd.boiv.in.colors": "https://github.com/starburst997/Unity.Colors.git"
   }
 }
 ```
@@ -27,15 +29,7 @@ Add the dependency to your `manifest.json`
 Call your code from anywhere (every frame).
 
 ```csharp
-Circle.Draw(new CircleInfo{
-    Center = new Vector3(UserPosition.position.x, UserPosition.position.y, 0),
-    Forward = new Vector3(0, 0, 1),
-    Radius = 10f,
-    FillColor = new Color(1, 0, 0, 0.2f),
-    BorderColor = new Color(0, 0, 0, 1),
-    BorderWidth = 0.1f,
-    Bordered = true,
-});
+Shape.Circle(center, 0.5f, Color.red);
 ```
 
 To have the shapes appears in the editor while the game isn't running, you can do like this:
@@ -48,13 +42,7 @@ public class TestShapes : MonoBehaviour
     
     public void Update()
     {
-        Circle.Draw(new CircleInfo{
-            Center = transform.position,
-            Forward = new Vector3(0, 0, 1),
-            Radius = Radius,
-            FillColor = new Color(0, 1, 0, 0.33f),
-            Bordered = false,
-        });
+        Shape.Circle(center, Radius, Color.green);
     }
 }
 ```

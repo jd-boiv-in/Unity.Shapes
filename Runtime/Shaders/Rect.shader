@@ -83,9 +83,9 @@
 				#if BORDER
 				float fillWidth = UNITY_ACCESS_INSTANCED_PROP(BorderProps, _FillWidth);
 				float fillHeight = UNITY_ACCESS_INSTANCED_PROP(BorderProps, _FillHeight);
+				float4 borderColor = UNITY_ACCESS_INSTANCED_PROP(BorderProps, _BorderColor);
 				float _HorizontalBorderThickness = fillWidth;
 				float _VerticalBorderThickness = fillHeight;
-				float4 _BorderColor = float4(0, 0, 0, 1);
 				float4 _Color = fillColor;
 				
 				// Determine if the pixel is within the border area
@@ -95,7 +95,7 @@
 				// TODO: Too naive? Use step?
                 if (isHorizontalBorder || isVerticalBorder)
                 {
-                    fillColor = _BorderColor;
+                    fillColor = borderColor;
                 }
                 else
                 {

@@ -5,7 +5,8 @@
   "description": "Draw debug shapes for debugging in Unity",
   "license": "MIT",
   "dependencies": {
-  
+    "jd.boiv.in.colors": "1.0.0",
+    "jd.boiv.in.extensions": "1.0.0"
   },
   "keywords": [
     "debug", "shapes", "circle", "rect"

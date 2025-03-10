@@ -50,6 +50,7 @@ namespace JD.Shapes.Editor
                 "Hidden/Shapes/Polygon",
                 "Hidden/Shapes/Rect",
                 "Hidden/Shapes/ArrowHead",
+                "Hidden/Shapes/Debug",
             };
             
             foreach (var name in shaders)

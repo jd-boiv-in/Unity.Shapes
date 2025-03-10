@@ -1,7 +1,10 @@
 {
     "name": "JD.Shapes",
     "rootNamespace": "JD.Shapes",
-    "references": [],
+    "references": [
+        "GUID:03757a207de39dc44ad32c0645413fa5",
+        "GUID:dc0a4fd05c166134fb1fea70443c5fd6"
+    ],
     "includePlatforms": [],
     "excludePlatforms": [],
     "allowUnsafeCode": false,
