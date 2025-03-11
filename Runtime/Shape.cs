@@ -16,6 +16,14 @@ namespace JD.Shapes
             public Color Color;
         }
         
+        private struct RectOneShotInfo
+        {
+            public Rect Rect;
+            public Color Color;
+            public float Time;
+            public float Duration;
+        }
+        
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
         private static void OnBeforeSceneLoadRuntimeMethod()
         {
@@ -36,10 +44,28 @@ namespace JD.Shapes
                 Object.DontDestroyOnLoad(obj);
             }
         }
+
+        internal static void OnUpdate()
+        {
+            // One Shots
+            if (_rectOneShots.Count > 0)
+            {
+                var now = Time.time;
+                while (_rectOneShots.TryDequeue(out var info))
+                {
+                    var time = now - info.Time;
+                    var a = Mathf.Max(1 - time / info.Duration, 0);
+                    RectInternal(info.Rect, info.Color.ToAlpha(a));
+                    if (a > 0) _rectOneShotsTemp.Enqueue(info);
+                }
+                (_rectOneShotsTemp, _rectOneShots) = (_rectOneShots, _rectOneShotsTemp);
+            }
+        }
         
         internal static void OnRender()
         {
-            if (_debugLineQueue.Count == 0) return;
+            // Debug Lines
+            if (_debugLines.Count == 0) return;
             
 #if UNITY_EDITOR
             if (_lineMaterial == null)
@@ -58,7 +84,7 @@ namespace JD.Shapes
             
             GL.Begin(GL.LINES);
             
-            while (_debugLineQueue.TryDequeue(out var info))
+            while (_debugLines.TryDequeue(out var info))
                 DebugLineInternal(info.Start, info.End, info.Color);
             
             GL.End();
@@ -68,7 +94,9 @@ namespace JD.Shapes
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
         private static void ResetStatic()
         {
-            _debugLineQueue?.Clear();
+            _debugLines?.Clear();
+            _rectOneShots?.Clear();
+            _rectOneShotsTemp?.Clear();
             _lineMaterial = null;
             _hasLineMaterial = false;
             _root = null;
@@ -81,7 +109,9 @@ namespace JD.Shapes
         private static ShapeRoot _root;
         private static bool _hasRoot;
         
-        private static readonly Queue<DebugLineInfo> _debugLineQueue = new Queue<DebugLineInfo>(100);
+        private static readonly Queue<DebugLineInfo> _debugLines = new Queue<DebugLineInfo>(100);
+        private static Queue<RectOneShotInfo> _rectOneShots = new Queue<RectOneShotInfo>(100);
+        private static Queue<RectOneShotInfo> _rectOneShotsTemp = new Queue<RectOneShotInfo>(100);
         
         public static void Circle(Vector3 position, float radius, Color color)
         {
@@ -143,7 +173,7 @@ namespace JD.Shapes
             if (Application.isPlaying)
 #endif
             {
-                _debugLineQueue.Enqueue(new DebugLineInfo()
+                _debugLines.Enqueue(new DebugLineInfo()
                 {
                     Start = start,
                     End = end,
@@ -217,16 +247,7 @@ namespace JD.Shapes
                 (minY, maxY) = (maxY, minY);
             }
 
-            Quad.Draw(new QuadInfo()
-            {
-                Center = new Vector3(minX + width / 2f, minY + height / 2f),
-                Size = new Vector2(width, height),
-                Color = color.ToAlpha(ShapeCommon.Alpha),
-                Rotation = ShapeCommon.RectRotation,
-                BorderColor = color,
-                BorderWidth = ShapeCommon.RectBorderWidth,
-                Bordered = true,
-            });
+            RectInternal(new Rect(minX, minY, width, height), color);
         }
         
         public static void Rect(Rect rect, Color color)
@@ -237,11 +258,35 @@ namespace JD.Shapes
             if (rect.height < 0)
                 (rect.yMin, rect.yMax) = (rect.yMax, rect.yMin);
             
+            RectInternal(rect, color);
+        }
+        
+        public static void RectOneShot(Rect rect, Color color, float duration = 0.25f)
+        {
+            if (!Application.isPlaying) return;
+            
+            if (rect.width < 0)
+                (rect.xMin, rect.xMax) = (rect.xMax, rect.xMin);
+            
+            if (rect.height < 0)
+                (rect.yMin, rect.yMax) = (rect.yMax, rect.yMin);
+
+            _rectOneShots.Enqueue(new RectOneShotInfo()
+            {
+                Rect = rect,
+                Color =  color,
+                Duration = duration,
+                Time = Time.time
+            });
+        }
+
+        private static void RectInternal(Rect rect, Color color)
+        {
             Quad.Draw(new QuadInfo()
             {
                 Center = rect.center,
                 Size = rect.size,
-                Color = color.ToAlpha(ShapeCommon.Alpha),
+                Color = color.ToAlpha(ShapeCommon.Alpha * color.a),
                 Rotation = ShapeCommon.RectRotation,
                 BorderColor = color,
                 BorderWidth = ShapeCommon.RectBorderWidth,

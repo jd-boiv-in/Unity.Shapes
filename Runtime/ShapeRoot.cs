@@ -10,5 +10,10 @@ namespace JD.Shapes
             ShapeCommon.LineMatrix = transform.localToWorldMatrix;
             Shape.OnRender();
         }
+
+        private void Update()
+        {
+            Shape.OnUpdate();
+        }
     }
 }
