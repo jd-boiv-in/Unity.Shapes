@@ -104,7 +104,6 @@
 			    circleColor.a *= distanceAlphaFactor;
 			    
 			    #if SECTOR
-			    
 			    float4 cutPlaneNormal1 = UNITY_ACCESS_INSTANCED_PROP(SectorProps, _cutPlaneNormal1);
 			    float4 cutPlaneNormal2 = UNITY_ACCESS_INSTANCED_PROP(SectorProps, _cutPlaneNormal2);
 			    float angleBlend = UNITY_ACCESS_INSTANCED_PROP(SectorProps, _AngleBlend);
@@ -125,7 +124,6 @@
 			    else { //AND
 			        circleColor.a *= distanceToPlane1Alpha * distanceToPlane2Alpha;
 			    }
-			   
 			    #endif
 			    
                 return circleColor;
