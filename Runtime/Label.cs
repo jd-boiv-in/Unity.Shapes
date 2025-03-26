@@ -29,10 +29,13 @@ namespace JD.Shapes
             _hasMesh = false;
             _material = null;
             _hasMaterial = false;
+            _materialBillboard = null;
+            _hasMaterialBillboard = false;
             _texture = null;
             _hasTexture = false;
             _materialPropertyBlock = null;
             _charsIndex = null;
+            _textureSet = false;
         }
         
         public static float AntiAliasingSmoothing = 1.5f;
@@ -53,17 +56,22 @@ namespace JD.Shapes
         private const string FillColorParam = "_FillColor";
         private const string LabelTextParam = "_LabelTex";
         private const string IndexParam = "_index";
+        private const string ScaleParam = "_scale";
 
         private static readonly int _fillColor = Shader.PropertyToID(FillColorParam);
         private static readonly int _labelTex = Shader.PropertyToID(LabelTextParam);
         private static readonly int _index = Shader.PropertyToID(IndexParam);
+        private static readonly int _scale = Shader.PropertyToID(ScaleParam);
         
         private static Mesh _mesh;
         private static bool _hasMesh;
         private static Material _material;
         private static bool _hasMaterial;
+        private static Material _materialBillboard;
+        private static bool _hasMaterialBillboard;
         private static Texture2D _texture;
         private static bool _hasTexture;
+        private static bool _textureSet;
         private static MaterialPropertyBlock _materialPropertyBlock;
 
         private static int _charsLength = 0;
@@ -71,7 +79,7 @@ namespace JD.Shapes
         private static readonly int[] _chars = new int[1024];
         private static readonly int[] _lines = new int[1024];
         private static readonly decimal[] _power = { 5e-1m, 5e-2m, 5e-3m, 5e-4m, 5e-5m, 5e-6m, 5e-7m, 5e-8m, 5e-9m, 5e-10m }; // Used by FormatText to enable rounding and avoid using Mathf.Pow.
-        
+
         private static Mesh CreateMesh()
         {
             var mesh = new Mesh();
@@ -135,11 +143,40 @@ namespace JD.Shapes
             if (SystemInfo.supportsInstancing)
                 mat.enableInstancing = true;
 
-            Shader.SetGlobalTexture(_labelTex, GetTexture());
+            if (!_textureSet)
+            {
+                _textureSet = true;
+                Shader.SetGlobalTexture(_labelTex, GetTexture());
+            }
 
             _material = mat;
             _hasMaterial = true;
             
+            return mat;
+        }
+        
+        private static Material GetMaterialBillboard()
+        {
+#if UNITY_EDITOR
+            if (_materialBillboard != null)
+#else
+            if (_hasMaterialBillboard)
+#endif
+                return _materialBillboard;
+
+            var mat = new Material(Shader.Find("Hidden/Shapes/Label Billboard"));
+            if (SystemInfo.supportsInstancing)
+                mat.enableInstancing = true;
+
+            if (!_textureSet)
+            {
+                _textureSet = true;
+                Shader.SetGlobalTexture(_labelTex, GetTexture());
+            }
+
+            _materialBillboard = mat;
+            _hasMaterialBillboard = true;
+
             return mat;
         }
 
@@ -268,11 +305,12 @@ namespace JD.Shapes
             var material = GetMaterial();
             var materialPropertyBlock = GetMaterialPropertyBlock(color);
             
+            var scale = new Vector3(-3f/4f, 0.5f, 0) * size;
+            var matrix = Matrix4x4.TRS(position, rotation, scale); // Quaternion.LookRotation(Common.normal)
+            
             materialPropertyBlock.SetColor(_fillColor, color);
             materialPropertyBlock.SetInt(_index, data);
-
-            var scale = new Vector3( -3f/4f, 0.5f, 0 ) * size;
-            var matrix = Matrix4x4.TRS(position, rotation, scale); // Quaternion.LookRotation(Common.normal)
+            //materialPropertyBlock.SetVector(_scale, scale);
 
             Graphics.DrawMesh(mesh, matrix, material, 0, null, 0, materialPropertyBlock);
         }

@@ -4,6 +4,16 @@ namespace JD.Shapes
 {
     public static class ShapeCommon
     {
+        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
+        private static void ResetStatic()
+        {
+            Camera = null;
+            HasCamera = false;
+        }
+        
+        public static Camera Camera;
+        public static bool HasCamera;
+        
         public static float Alpha = 0.2f;
         
         public static float TextSize = 1.0f;

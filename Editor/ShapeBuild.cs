@@ -46,6 +46,7 @@ namespace JD.Shapes.Editor
             {
                 "Hidden/Shapes/Circle",
                 "Hidden/Shapes/Label",
+                "Hidden/Shapes/Label Billboard",
                 "Hidden/Shapes/Line",
                 "Hidden/Shapes/Polygon",
                 "Hidden/Shapes/Rect",
