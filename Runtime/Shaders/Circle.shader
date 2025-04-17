@@ -124,13 +124,18 @@
 			    float distanceToPlane2PerPixel = fwidth(distanceToPlane2);
 			    float distanceToPlane2Alpha = 1.0 - smoothstep(0,0 + distanceToPlane2PerPixel * aaSmoothing, distanceToPlane2);
 
+				#if BORDER
+				// Arc is only between 0 - 180 when in border mode
+				float sectorAlpha = distanceToPlane1Alpha * distanceToPlane2Alpha;
+				#else
 			    // Combine the alpha values depending on angleBlend (OR or AND logic)
-			    float sectorAlpha;
+				float sectorAlpha;
 			    if (angleBlend == 1) { // OR
 			        sectorAlpha = max(distanceToPlane1Alpha, distanceToPlane2Alpha);
 			    } else { // AND
 			        sectorAlpha = distanceToPlane1Alpha * distanceToPlane2Alpha;
 			    }
+				#endif
 
 			    #if BORDER
 			    fillWidth = -1 + fillWidth;
