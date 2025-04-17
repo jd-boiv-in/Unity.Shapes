@@ -113,6 +113,22 @@ namespace JD.Shapes
         private static Queue<RectOneShotInfo> _rectOneShots = new Queue<RectOneShotInfo>(100);
         private static Queue<RectOneShotInfo> _rectOneShotsTemp = new Queue<RectOneShotInfo>(100);
         
+        public static void Arc(Vector3 position, float radius, float angle, float degrees, Color color)
+        {
+            Shapes.Circle.Draw(new CircleInfo{
+                Center = position,
+                Forward = ShapeCommon.CircleRotation,
+                Radius = radius,
+                FillColor = color.ToAlpha(ShapeCommon.Alpha),
+                BorderColor = color,
+                BorderWidth = ShapeCommon.CircleBorderWidth,
+                Bordered = true,
+                IsSector = true,
+                SectorInitialAngleInDegrees = angle - degrees / 2f,
+                SectorArcLengthInDegrees = degrees,
+            });
+        }
+        
         public static void Circle(Vector3 position, float radius, Color color)
         {
             Shapes.Circle.Draw(new CircleInfo{

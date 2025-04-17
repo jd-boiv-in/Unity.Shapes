@@ -42,6 +42,10 @@
 				float4 vertex : SV_POSITION;
 				UNITY_VERTEX_INPUT_INSTANCE_ID
 				UNITY_VERTEX_OUTPUT_STEREO
+
+				#if SECTOR && BORDER
+				float3 worldPos   : TEXCOORD3;
+				#endif
 			};
 
             UNITY_INSTANCING_BUFFER_START(CommonProps)
@@ -74,59 +78,85 @@
 				
 				o.vertex = UnityObjectToClipPos(v.vertex);
 				o.uv = v.vertex.xy;
+
+				#if SECTOR && BORDER
+            	o.worldPos = mul(unity_ObjectToWorld, v.vertex).xyz;
+				#endif
+            	
 				return o;
 			}
 			
 			fixed4 frag (v2f i) : SV_Target
 			{
-			
 			    UNITY_SETUP_INSTANCE_ID(i);
-			    
+
 			    float aaSmoothing = UNITY_ACCESS_INSTANCED_PROP(CommonProps, _AASmoothing);
 			    fixed4 fillColor = UNITY_ACCESS_INSTANCED_PROP(CommonProps, _FillColor);
-			    
+
 			    float distanceToCenter = length(i.uv);
-			    
+
 			    float distancePerPixel = fwidth(distanceToCenter);
-			    float distanceAlphaFactor = 1.0 - smoothstep(1.0-distancePerPixel*aaSmoothing,1.0,distanceToCenter);
+			    float distanceAlphaFactor = 1.0 - smoothstep(1.0 - distancePerPixel * aaSmoothing, 1.0, distanceToCenter);
 			    float halfSmoothFactor = 0.5f * distancePerPixel * aaSmoothing;
-			    
+
 			    #if BORDER
 			    float fillWidth = UNITY_ACCESS_INSTANCED_PROP(BorderProps, _FillWidth);
 			    fixed4 borderColor = UNITY_ACCESS_INSTANCED_PROP(BorderProps, _BorderColor);
-			    
-			    float fillToBorder = smoothstep(fillWidth-halfSmoothFactor,fillWidth+halfSmoothFactor,distanceToCenter);
-			    fixed4 circleColor = lerp(fillColor,borderColor,fillToBorder);
+
+			    float fillToBorder = smoothstep(fillWidth - halfSmoothFactor, fillWidth + halfSmoothFactor, distanceToCenter);
+			    fixed4 circleColor = lerp(fillColor, borderColor, fillToBorder);
 			    #else
 			    fixed4 circleColor = fillColor;
 			    #endif
-			    
-			    circleColor.a *= distanceAlphaFactor;
-			    
+
 			    #if SECTOR
 			    float4 cutPlaneNormal1 = UNITY_ACCESS_INSTANCED_PROP(SectorProps, _cutPlaneNormal1);
 			    float4 cutPlaneNormal2 = UNITY_ACCESS_INSTANCED_PROP(SectorProps, _cutPlaneNormal2);
 			    float angleBlend = UNITY_ACCESS_INSTANCED_PROP(SectorProps, _AngleBlend);
-			    
-			    float2 pos = float2(i.uv.x,i.uv.y);
-			    
-			    float distanceToPlane1 = dot(pos,cutPlaneNormal1);
+
+			    float2 pos = float2(i.uv.x, i.uv.y);
+
+			    float distanceToPlane1 = dot(pos, cutPlaneNormal1);
 			    float distanceToPlane1PerPixel = fwidth(distanceToPlane1);
-			    float distanceToPlane1Alpha = 1.0 - smoothstep(0,0+distanceToPlane1PerPixel*aaSmoothing ,distanceToPlane1);
-			    
-			    float distanceToPlane2 = dot(pos,cutPlaneNormal2);
+			    float distanceToPlane1Alpha = 1.0 - smoothstep(0,0 + distanceToPlane1PerPixel * aaSmoothing, distanceToPlane1);
+
+			    float distanceToPlane2 = dot(pos, cutPlaneNormal2);
 			    float distanceToPlane2PerPixel = fwidth(distanceToPlane2);
-			    float distanceToPlane2Alpha = 1.0 - smoothstep(0,0+distanceToPlane2PerPixel*aaSmoothing ,distanceToPlane2);
-			    
-			    if(angleBlend == 1){ //OR
-			        circleColor.a *= max(distanceToPlane1Alpha, distanceToPlane2Alpha);
+			    float distanceToPlane2Alpha = 1.0 - smoothstep(0,0 + distanceToPlane2PerPixel * aaSmoothing, distanceToPlane2);
+
+			    // Combine the alpha values depending on angleBlend (OR or AND logic)
+			    float sectorAlpha;
+			    if (angleBlend == 1) { // OR
+			        sectorAlpha = max(distanceToPlane1Alpha, distanceToPlane2Alpha);
+			    } else { // AND
+			        sectorAlpha = distanceToPlane1Alpha * distanceToPlane2Alpha;
 			    }
-			    else { //AND
-			        circleColor.a *= distanceToPlane1Alpha * distanceToPlane2Alpha;
-			    }
+
+			    #if BORDER
+			    fillWidth = -1 + fillWidth;
+
+				// Slight adjustment to compensate for the outer border being naturally fading as the distance goes
+				// Not sure why it isn't taken into account for the border on the sector, but this gives me exactly what I wanted
+				// Hopefully this works in other cases?
+				float distanceToCamera = distance(i.worldPos, _WorldSpaceCameraPos.xyz);
+                float distanceFactor = max(1 - (max(distanceToCamera, 3) - 3) / 13.0, 0);
+				fillWidth *= distanceFactor;
+
+			    float borderOnPlane1 = smoothstep(fillWidth - halfSmoothFactor, halfSmoothFactor + fillWidth, distanceToPlane1);
+			    float borderOnPlane2 = smoothstep(fillWidth - halfSmoothFactor, halfSmoothFactor + fillWidth, distanceToPlane2);
+
+			    float borderBlend = max(borderOnPlane1, borderOnPlane2);
+
+			    circleColor = lerp(circleColor, borderColor, borderBlend * distanceFactor);
 			    #endif
-			    
-                return circleColor;
+
+			    // Adjust the alpha of the circle color based on the sector
+			    circleColor.a *= sectorAlpha;
+			    #endif
+
+			    circleColor.a *= distanceAlphaFactor;
+
+			    return circleColor;
 			}
 			ENDCG
 		}
