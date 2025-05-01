@@ -124,24 +124,16 @@
 			    float distanceToPlane2PerPixel = fwidth(distanceToPlane2);
 			    float distanceToPlane2Alpha = 1.0 - smoothstep(0,0 + distanceToPlane2PerPixel * aaSmoothing, distanceToPlane2);
 
-				#if BORDER
-				// Arc is only between 0 - 180 when in border mode
+				// Is it faster than an "if"?
+				float sectorAlpha = distanceToPlane1Alpha * distanceToPlane2Alpha * (1 - angleBlend) + max(distanceToPlane1Alpha, distanceToPlane2Alpha) * angleBlend;
+				
 				//float sectorAlpha = distanceToPlane1Alpha * distanceToPlane2Alpha;
-				float sectorAlpha;
+				/*float sectorAlpha;
 				if (angleBlend == 1) { // OR
 			        sectorAlpha = max(distanceToPlane1Alpha, distanceToPlane2Alpha);
 			    } else { // AND
 			        sectorAlpha = distanceToPlane1Alpha * distanceToPlane2Alpha;
-			    }
-				#else
-			    // Combine the alpha values depending on angleBlend (OR or AND logic)
-				float sectorAlpha;
-			    if (angleBlend == 1) { // OR
-			        sectorAlpha = max(distanceToPlane1Alpha, distanceToPlane2Alpha);
-			    } else { // AND
-			        sectorAlpha = distanceToPlane1Alpha * distanceToPlane2Alpha;
-			    }
-				#endif
+			    }*/
 
 			    #if BORDER
 			    fillWidth = -1 + fillWidth;
@@ -156,13 +148,16 @@
 			    float borderOnPlane1 = smoothstep(fillWidth - halfSmoothFactor, halfSmoothFactor + fillWidth, distanceToPlane1);
 			    float borderOnPlane2 = smoothstep(fillWidth - halfSmoothFactor, halfSmoothFactor + fillWidth, distanceToPlane2);
 
+				// Is it faster than an "if"?
+				float borderBlend = borderOnPlane1 * borderOnPlane2 * angleBlend + max(borderOnPlane1, borderOnPlane2) * (1 - angleBlend);
+				
 			    //float borderBlend = max(borderOnPlane1, borderOnPlane2);
-				float borderBlend;
+				/*float borderBlend;
 				if (angleBlend == 1) {
 					borderBlend = borderOnPlane1 * borderOnPlane2;
 				} else {
 					borderBlend = max(borderOnPlane1, borderOnPlane2);
-				}
+				}*/
 				
 			    circleColor = lerp(circleColor, borderColor, borderBlend * distanceFactor);
 			    #endif
