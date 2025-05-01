@@ -116,8 +116,7 @@ namespace JD.Shapes
         private static Material GetMaterial(QuadInfo info)
         {
             var materialIndex = 0;
-            if (info.Bordered)
-                materialIndex = 1;
+            if (info.Bordered) materialIndex = 1;
 
 #if UNITY_EDITOR
             if (_materials[materialIndex] != null)      

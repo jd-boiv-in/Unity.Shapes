@@ -154,6 +154,21 @@ namespace JD.Shapes
                 Rotation = ShapeCommon.TextRotation
             });
         }
+        
+        public static void Triangle(Vector3 position, float size, float angle, Color color)
+        {
+            Polygon.Draw(new PolygonInfo()
+            {
+                Sides = 3,
+                Center = position,
+                Size = size,
+                Color = color.ToAlpha(ShapeCommon.Alpha * color.a),
+                Rotation = angle == 0 ? ShapeCommon.RectRotation : Quaternion.Euler(0, 0, angle),
+                BorderColor = color,
+                BorderWidth = ShapeCommon.CircleBorderWidth,
+                Bordered = true,
+            });
+        }
 
         public static void TextFormat(Vector3 position, string text, float arg0 = 0, float arg1 = 0, float arg2 = 0, float arg3 = 0, float arg4 = 0, float arg5 = 0, float arg6 = 0, float arg7 = 0)
         {
@@ -266,6 +281,11 @@ namespace JD.Shapes
             RectInternal(new Rect(minX, minY, width, height), color);
         }
         
+        public static void Rect(Vector2 center, Vector2 size, float angle, Color color)
+        {
+            RectInternal(new Rect(center.x - size.x / 2f, center.y - size.y / 2f, size.x, size.y), color, angle);
+        }
+        
         public static void Rect(Rect rect, Color color)
         {
             if (rect.width < 0)
@@ -296,14 +316,14 @@ namespace JD.Shapes
             });
         }
 
-        private static void RectInternal(Rect rect, Color color)
+        private static void RectInternal(Rect rect, Color color, float angle = 0)
         {
             Quad.Draw(new QuadInfo()
             {
                 Center = rect.center,
                 Size = rect.size,
                 Color = color.ToAlpha(ShapeCommon.Alpha * color.a),
-                Rotation = ShapeCommon.RectRotation,
+                Rotation = angle == 0 ? ShapeCommon.RectRotation : Quaternion.Euler(0, 0, angle),
                 BorderColor = color,
                 BorderWidth = ShapeCommon.RectBorderWidth,
                 Bordered = true,

@@ -85,12 +85,12 @@ namespace JD.Shapes
             var vertices = new List<Vector3> { Vector3.zero };
 
             var angleIncrement = (Mathf.PI * 2) / info.Sides;
-            var offset = Mathf.PI / 4f;
+            var offset = 0; //Mathf.PI / 4f;
 
             for (var currentAngle = 0f; currentAngle < (Mathf.PI * 2); currentAngle += angleIncrement)
             {
                 var x = Mathf.Cos(currentAngle + offset);
-                var y = Mathf.Sin(currentAngle + offset);
+                var y = Mathf.Sin(currentAngle + offset);// * 0.1f;
                 vertices.Add(new Vector3(x, y, 0f));
             }
 
@@ -139,8 +139,7 @@ namespace JD.Shapes
             if (info.Bordered)
             {
                 _materialPropertyBlock.SetColor(_borderColor, info.BorderColor);
-                var borderWidthNormalized = info.BorderWidth / info.Size;
-                _materialPropertyBlock.SetFloat(_fillWidth, 1.0f - borderWidthNormalized);
+                _materialPropertyBlock.SetFloat(_fillWidth, 1 - info.BorderWidth / (info.Size / 5f));
             }
 
             return _materialPropertyBlock;
@@ -149,8 +148,7 @@ namespace JD.Shapes
         private static Material GetMaterial(PolygonInfo info)
         {
             var materialIndex = 0;
-            if (info.Bordered)
-                materialIndex = 1;
+            if (info.Bordered) materialIndex = 1;
 
 #if UNITY_EDITOR
             if (_materials[materialIndex] != null)
@@ -175,7 +173,7 @@ namespace JD.Shapes
 
         public static void Draw(PolygonInfo info)
         {
-            if (info.Sides < 2)
+            if (info.Sides <= 2)
                 throw new ArgumentException("Polygon must have at least 3 sides");
 
             var mesh = GenerateMeshPolygon(info);

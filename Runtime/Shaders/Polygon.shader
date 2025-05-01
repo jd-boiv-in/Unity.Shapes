@@ -77,14 +77,14 @@
 			    float distanceToCenter = i.uv.x;
 			    
 			    float distancePerPixel = fwidth(distanceToCenter);
-			    float distanceAlphaFactor = 1.0 - smoothstep(1.0-distancePerPixel*aaSmoothing,1.0,distanceToCenter);
-			                    
+			    float distanceAlphaFactor = 1.0 - smoothstep(1.0 - distancePerPixel * aaSmoothing, 1.0, distanceToCenter);
+				
                 #if BORDER
 			    float fillWidth = UNITY_ACCESS_INSTANCED_PROP(BorderProps, _FillWidth);
 			    fixed4 borderColor = UNITY_ACCESS_INSTANCED_PROP(BorderProps, _BorderColor);
 			    
-			    float fillToBlendColorLerpFactor = smoothstep(fillWidth,fillWidth + distancePerPixel*aaSmoothing,distanceToCenter);
-			    fillColor = lerp(fillColor,borderColor,fillToBlendColorLerpFactor);
+			    float fillToBlendColorLerpFactor = smoothstep(fillWidth, fillWidth + distancePerPixel * aaSmoothing, distanceToCenter);
+			    fillColor = lerp(fillColor, borderColor, fillToBlendColorLerpFactor);
 			    #endif
 			    
 			    fillColor.a *= distanceAlphaFactor;

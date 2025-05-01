@@ -80,15 +80,15 @@
 			    
 			    float distancePerPixel = fwidth(distanceToCenter);
 			    float distanceAlphaFactor = 1.0 - smoothstep(1.0-distancePerPixel*aaSmoothing,1.0,distanceToCenter);
-			    float halfSmoothFactor = 0.5f * distancePerPixel * aaSmoothing;
 			    
 			    #if BORDER
+			    float halfSmoothFactor = 0.5f * distancePerPixel * aaSmoothing;
 			    float fillWidth = UNITY_ACCESS_INSTANCED_PROP(BorderProps, _FillWidth);
 			    float fillHeight = UNITY_ACCESS_INSTANCED_PROP(BorderProps, _FillHeight);
 			    fixed4 borderColor = UNITY_ACCESS_INSTANCED_PROP(BorderProps, _BorderColor);
 			    
-			    float fillToBorderX = smoothstep(fillWidth-halfSmoothFactor,fillWidth+halfSmoothFactor,absUV.x);
-			    float fillToBorderY = smoothstep(fillHeight-halfSmoothFactor,fillHeight+halfSmoothFactor,absUV.y);
+			    float fillToBorderX = smoothstep(fillWidth - halfSmoothFactor, fillWidth + halfSmoothFactor, absUV.x);
+			    float fillToBorderY = smoothstep(fillHeight - halfSmoothFactor, fillHeight + halfSmoothFactor, absUV.y);
 			    fixed4 squareColor = lerp(fillColor, borderColor, max(fillToBorderX, fillToBorderY));
 			    #else
 			    fixed4 squareColor = fillColor;
