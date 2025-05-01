@@ -139,14 +139,19 @@
 			    fillWidth = -1 + fillWidth;
 
 				// Slight adjustment to compensate for the outer border being naturally fading as the distance goes
-				// Not sure why it isn't taken into account for the border on the sector, but this gives me exactly what I wanted
+				// Not sure why it isn't taken into account for the border on the sector, but this gives me something very close to what I wanted
 				// Hopefully this works in other cases?
+				float factor = _ScreenParams.y / 1080.0;
 				float distanceToCamera = distance(i.worldPos, _WorldSpaceCameraPos.xyz);
-                float distanceFactor = max(1 - (max(distanceToCamera, 3) - 3) / 13.0, 0);
+                float distanceFactor = max(1 - (max(distanceToCamera, 5 * factor) - 5 * factor) / (25.0 * factor), 0);
+				
+				float halfSmoothFactor1 = 0.5f * distanceToPlane1PerPixel * aaSmoothing;
+				float halfSmoothFactor2 = 0.5f * distanceToPlane2PerPixel * aaSmoothing;
+
 				fillWidth *= distanceFactor;
 
-			    float borderOnPlane1 = smoothstep(fillWidth - halfSmoothFactor, halfSmoothFactor + fillWidth, distanceToPlane1);
-			    float borderOnPlane2 = smoothstep(fillWidth - halfSmoothFactor, halfSmoothFactor + fillWidth, distanceToPlane2);
+			    float borderOnPlane1 = smoothstep(fillWidth - halfSmoothFactor1, fillWidth + halfSmoothFactor1, distanceToPlane1);
+			    float borderOnPlane2 = smoothstep(fillWidth - halfSmoothFactor2, fillWidth + halfSmoothFactor2, distanceToPlane2);
 
 				// Is it faster than an "if"?
 				float borderBlend = borderOnPlane1 * borderOnPlane2 * angleBlend + max(borderOnPlane1, borderOnPlane2) * (1 - angleBlend);
