@@ -126,7 +126,13 @@
 
 				#if BORDER
 				// Arc is only between 0 - 180 when in border mode
-				float sectorAlpha = distanceToPlane1Alpha * distanceToPlane2Alpha;
+				//float sectorAlpha = distanceToPlane1Alpha * distanceToPlane2Alpha;
+				float sectorAlpha;
+				if (angleBlend == 1) { // OR
+			        sectorAlpha = max(distanceToPlane1Alpha, distanceToPlane2Alpha);
+			    } else { // AND
+			        sectorAlpha = distanceToPlane1Alpha * distanceToPlane2Alpha;
+			    }
 				#else
 			    // Combine the alpha values depending on angleBlend (OR or AND logic)
 				float sectorAlpha;
@@ -150,8 +156,14 @@
 			    float borderOnPlane1 = smoothstep(fillWidth - halfSmoothFactor, halfSmoothFactor + fillWidth, distanceToPlane1);
 			    float borderOnPlane2 = smoothstep(fillWidth - halfSmoothFactor, halfSmoothFactor + fillWidth, distanceToPlane2);
 
-			    float borderBlend = max(borderOnPlane1, borderOnPlane2);
-
+			    //float borderBlend = max(borderOnPlane1, borderOnPlane2);
+				float borderBlend;
+				if (angleBlend == 1) {
+					borderBlend = borderOnPlane1 * borderOnPlane2;
+				} else {
+					borderBlend = max(borderOnPlane1, borderOnPlane2);
+				}
+				
 			    circleColor = lerp(circleColor, borderColor, borderBlend * distanceFactor);
 			    #endif
 

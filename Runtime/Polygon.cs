@@ -184,6 +184,7 @@ namespace JD.Shapes
             var materialPropertyBlock = GetMaterialPropertyBlock(info);
             var material = GetMaterial(info);
 
+            // TODO: Support scaling
             Graphics.DrawMesh(mesh, matrix, material, 0, null, 0, materialPropertyBlock);
         }
     }

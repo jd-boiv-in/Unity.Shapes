@@ -233,14 +233,14 @@ namespace JD.Shapes
                 Line(lines[i], lines[(i + 1) % lines.Length], color);
         }
 
-        public static void Line(Vector3 start, Vector3 end, Color color)
+        public static void Line(Vector3 start, Vector3 end, Color color, float width = 0.055f)
         {
             Shapes.Line.Draw(new LineInfo()
             {
                 StartPos = start,
                 EndPos = end,
                 FillColor = color.ToAlpha(ShapeCommon.LineAlpha),
-                Width = 0.1f,
+                Width = width,
                 Hard = false,
                 Forward = ShapeCommon.LineRotation,
                 Bordered = false,
@@ -250,6 +250,29 @@ namespace JD.Shapes
                 EndArrow = false,
                 ArrowLength = 0f,
                 ArrowWidth = 0f,
+                Dashed =  false,
+                DashLength = 0f,
+                DistanceBetweenDashes = 0f
+            });
+        }
+        
+        public static void Arrow(Vector3 start, Vector3 end, Color color, float width = 0.055f)
+        {
+            Shapes.Line.Draw(new LineInfo()
+            {
+                StartPos = start,
+                EndPos = end,
+                FillColor = color.ToAlpha(ShapeCommon.LineAlpha),
+                Width = width,
+                Hard = false,
+                Forward = ShapeCommon.LineRotation,
+                Bordered = false,
+                BorderWidth = 0,
+                BorderColor = Color.black,
+                StartArrow = false,
+                EndArrow = true,
+                ArrowLength = 0.5f,
+                ArrowWidth = 0.25f,
                 Dashed =  false,
                 DashLength = 0f,
                 DistanceBetweenDashes = 0f
