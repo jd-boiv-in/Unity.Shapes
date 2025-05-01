@@ -24,6 +24,46 @@ namespace JD.Shapes
             public float Duration;
         }
         
+        private struct CircleOneShotInfo
+        {
+            public Vector3 Position;
+            public float Radius;
+            public Color Color;
+            public float Time;
+            public float Duration;
+        }
+        
+        private struct ArcOneShotInfo
+        {
+            public Vector3 Position;
+            public float Radius;
+            public float Angle;
+            public float Degrees;
+            public Color Color;
+            public float Time;
+            public float Duration;
+        }
+        
+        private struct TriangleOneShotInfo
+        {
+            public Vector3 Position;
+            public float Size;
+            public float Angle;
+            public Color Color;
+            public float Time;
+            public float Duration;
+        }
+        
+        private struct ArrowOneShotInfo
+        {
+            public Vector3 Start;
+            public Vector3 End;
+            public float Width;
+            public Color Color;
+            public float Time;
+            public float Duration;
+        }
+        
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
         private static void OnBeforeSceneLoadRuntimeMethod()
         {
@@ -59,6 +99,58 @@ namespace JD.Shapes
                     if (a > 0) _rectOneShotsTemp.Enqueue(info);
                 }
                 (_rectOneShotsTemp, _rectOneShots) = (_rectOneShots, _rectOneShotsTemp);
+            }
+            
+            if (_circleOneShots.Count > 0)
+            {
+                var now = Time.time;
+                while (_circleOneShots.TryDequeue(out var info))
+                {
+                    var time = now - info.Time;
+                    var a = Mathf.Max(1 - time / info.Duration, 0);
+                    Circle(info.Position, info.Radius, info.Color.ToAlpha(a));
+                    if (a > 0) _circleOneShotsTemp.Enqueue(info);
+                }
+                (_circleOneShotsTemp, _circleOneShots) = (_circleOneShots, _circleOneShotsTemp);
+            }
+            
+            if (_arcOneShots.Count > 0)
+            {
+                var now = Time.time;
+                while (_arcOneShots.TryDequeue(out var info))
+                {
+                    var time = now - info.Time;
+                    var a = Mathf.Max(1 - time / info.Duration, 0);
+                    Arc(info.Position, info.Radius, info.Angle, info.Degrees, info.Color.ToAlpha(a));
+                    if (a > 0) _arcOneShotsTemp.Enqueue(info);
+                }
+                (_arcOneShotsTemp, _arcOneShots) = (_arcOneShots, _arcOneShotsTemp);
+            }
+            
+            if (_triangleOneShots.Count > 0)
+            {
+                var now = Time.time;
+                while (_triangleOneShots.TryDequeue(out var info))
+                {
+                    var time = now - info.Time;
+                    var a = Mathf.Max(1 - time / info.Duration, 0);
+                    Triangle(info.Position, info.Size, info.Angle, info.Color.ToAlpha(a));
+                    if (a > 0) _triangleOneShotsTemp.Enqueue(info);
+                }
+                (_triangleOneShotsTemp, _triangleOneShots) = (_triangleOneShots, _triangleOneShotsTemp);
+            }
+            
+            if (_arrowOneShots.Count > 0)
+            {
+                var now = Time.time;
+                while (_arrowOneShots.TryDequeue(out var info))
+                {
+                    var time = now - info.Time;
+                    var a = Mathf.Max(1 - time / info.Duration, 0);
+                    Arrow(info.Start, info.End, info.Color.ToAlpha(a), info.Width);
+                    if (a > 0) _arrowOneShotsTemp.Enqueue(info);
+                }
+                (_arrowOneShotsTemp, _arrowOneShots) = (_arrowOneShots, _arrowOneShotsTemp);
             }
         }
         
@@ -97,6 +189,14 @@ namespace JD.Shapes
             _debugLines?.Clear();
             _rectOneShots?.Clear();
             _rectOneShotsTemp?.Clear();
+            _circleOneShots?.Clear();
+            _circleOneShotsTemp?.Clear();
+            _arcOneShots?.Clear();
+            _arcOneShotsTemp?.Clear();
+            _triangleOneShots?.Clear();
+            _triangleOneShotsTemp?.Clear();
+            _arrowOneShots?.Clear();
+            _arrowOneShotsTemp?.Clear();
             _lineMaterial = null;
             _hasLineMaterial = false;
             _root = null;
@@ -112,6 +212,14 @@ namespace JD.Shapes
         private static readonly Queue<DebugLineInfo> _debugLines = new Queue<DebugLineInfo>(100);
         private static Queue<RectOneShotInfo> _rectOneShots = new Queue<RectOneShotInfo>(100);
         private static Queue<RectOneShotInfo> _rectOneShotsTemp = new Queue<RectOneShotInfo>(100);
+        private static Queue<CircleOneShotInfo> _circleOneShots = new Queue<CircleOneShotInfo>(100);
+        private static Queue<CircleOneShotInfo> _circleOneShotsTemp = new Queue<CircleOneShotInfo>(100);
+        private static Queue<ArcOneShotInfo> _arcOneShots = new Queue<ArcOneShotInfo>(100);
+        private static Queue<ArcOneShotInfo> _arcOneShotsTemp = new Queue<ArcOneShotInfo>(100);
+        private static Queue<TriangleOneShotInfo> _triangleOneShots = new Queue<TriangleOneShotInfo>(100);
+        private static Queue<TriangleOneShotInfo> _triangleOneShotsTemp = new Queue<TriangleOneShotInfo>(100);
+        private static Queue<ArrowOneShotInfo> _arrowOneShots = new Queue<ArrowOneShotInfo>(100);
+        private static Queue<ArrowOneShotInfo> _arrowOneShotsTemp = new Queue<ArrowOneShotInfo>(100);
         
         public static void Arc(Vector3 position, float radius, float angle, float degrees, Color color)
         {
@@ -119,7 +227,7 @@ namespace JD.Shapes
                 Center = position,
                 Forward = ShapeCommon.CircleRotation,
                 Radius = radius,
-                FillColor = color.ToAlpha(ShapeCommon.Alpha),
+                FillColor = color.ToAlpha(ShapeCommon.Alpha * color.a),
                 BorderColor = color,
                 BorderWidth = ShapeCommon.CircleBorderWidth,
                 Bordered = true,
@@ -129,16 +237,46 @@ namespace JD.Shapes
             });
         }
         
+        public static void ArcOneShot(Vector3 position, float radius, float angle, float degrees, Color color, float duration = 0.25f)
+        {
+            if (!Application.isPlaying) return;
+            
+            _arcOneShots.Enqueue(new ArcOneShotInfo()
+            {
+                Position = position,
+                Radius = radius,
+                Angle = angle,
+                Degrees = degrees,
+                Color =  color,
+                Duration = duration,
+                Time = Time.time
+            });
+        }
+        
         public static void Circle(Vector3 position, float radius, Color color)
         {
             Shapes.Circle.Draw(new CircleInfo{
                 Center = position,
                 Forward = ShapeCommon.CircleRotation,
                 Radius = radius,
-                FillColor = color.ToAlpha(ShapeCommon.Alpha),
+                FillColor = color.ToAlpha(ShapeCommon.Alpha * color.a),
                 BorderColor = color,
                 BorderWidth = ShapeCommon.CircleBorderWidth,
                 Bordered = true,
+            });
+        }
+        
+        public static void CircleOneShot(Vector3 position, float radius, Color color, float duration = 0.25f)
+        {
+            if (!Application.isPlaying) return;
+            
+            _circleOneShots.Enqueue(new CircleOneShotInfo()
+            {
+                Position = position,
+                Radius = radius,
+                Color =  color,
+                Duration = duration,
+                Time = Time.time
             });
         }
 
@@ -167,6 +305,21 @@ namespace JD.Shapes
                 BorderColor = color,
                 BorderWidth = ShapeCommon.CircleBorderWidth,
                 Bordered = true,
+            });
+        }
+        
+        public static void TriangleOneShot(Vector3 position, float size, float angle, Color color, float duration = 0.25f)
+        {
+            if (!Application.isPlaying) return;
+            
+            _triangleOneShots.Enqueue(new TriangleOneShotInfo()
+            {
+                Position = position,
+                Size = size,
+                Angle = angle,
+                Color =  color,
+                Duration = duration,
+                Time = Time.time
             });
         }
 
@@ -262,7 +415,7 @@ namespace JD.Shapes
             {
                 StartPos = start,
                 EndPos = end,
-                FillColor = color.ToAlpha(ShapeCommon.LineAlpha),
+                FillColor = color.ToAlpha(ShapeCommon.LineAlpha * color.a),
                 Width = width,
                 Hard = false,
                 Forward = ShapeCommon.LineRotation,
@@ -276,6 +429,21 @@ namespace JD.Shapes
                 Dashed =  false,
                 DashLength = 0f,
                 DistanceBetweenDashes = 0f
+            });
+        }
+        
+        public static void ArrowOneShot(Vector3 start, Vector3 end, Color color, float width = 0.055f, float duration = 0.25f)
+        {
+            if (!Application.isPlaying) return;
+            
+            _arrowOneShots.Enqueue(new ArrowOneShotInfo()
+            {
+                Start = start,
+                End = end,
+                Width = width,
+                Color =  color,
+                Duration = duration,
+                Time = Time.time
             });
         }
         
