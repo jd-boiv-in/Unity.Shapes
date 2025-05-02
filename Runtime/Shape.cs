@@ -19,6 +19,7 @@ namespace JD.Shapes
         private struct RectOneShotInfo
         {
             public Rect Rect;
+            public float Angle;
             public Color Color;
             public float Time;
             public float Duration;
@@ -95,7 +96,7 @@ namespace JD.Shapes
                 {
                     var time = now - info.Time;
                     var a = Mathf.Max(1 - time / info.Duration, 0);
-                    RectInternal(info.Rect, info.Color.ToAlpha(a));
+                    RectInternal(info.Rect, info.Color.ToAlpha(a), info.Angle);
                     if (a > 0) _rectOneShotsTemp.Enqueue(info);
                 }
                 (_rectOneShotsTemp, _rectOneShots) = (_rectOneShots, _rectOneShotsTemp);
@@ -487,8 +488,13 @@ namespace JD.Shapes
             
             RectInternal(rect, color);
         }
-        
-        public static void RectOneShot(Rect rect, Color color, float duration = 0.25f)
+
+        public static void RectOneShot(Vector2 center, Vector2 size, float angle, Color color, float duration = 0.25f)
+        {
+            RectOneShot(new Rect(center.x - size.x / 2f, center.y - size.y / 2f, size.x, size.y), color, angle, duration);
+        }
+
+        public static void RectOneShot(Rect rect, Color color, float angle = 0, float duration = 0.25f)
         {
             if (!Application.isPlaying) return;
             
@@ -501,6 +507,7 @@ namespace JD.Shapes
             _rectOneShots.Enqueue(new RectOneShotInfo()
             {
                 Rect = rect,
+                Angle = angle,
                 Color =  color,
                 Duration = duration,
                 Time = Time.time
