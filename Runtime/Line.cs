@@ -173,6 +173,8 @@ namespace JD.Shapes
 #endif
             {
                 _arrowHeadMaterial = new Material(Shader.Find("Hidden/Shapes/ArrowHead"));
+                if (SystemInfo.supportsInstancing)
+                    _arrowHeadMaterial.enableInstancing = true;
                 _hasArrowHeadMaterial = true;
             }
 
